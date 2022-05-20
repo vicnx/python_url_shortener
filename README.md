@@ -1,6 +1,6 @@
 <h1 align="center">Welcome to URL Shortener 👋</h1>
 <p>
-  <img alt="Version" src="https://img.shields.io/badge/version-1.0-blue.svg?cacheSeconds=2592000" />
+  <img alt="Version" src="https://img.shields.io/badge/version-1.5-blue.svg?cacheSeconds=2592000" />
   <img alt="PyPI - Python Version" src="https://img.shields.io/badge/-Python-333333?style=flat&logo=python">
 </p>
 

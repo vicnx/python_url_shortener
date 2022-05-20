@@ -30,15 +30,16 @@ class App():
 
   def check_apis(self):
     try:
-        if not exists(resource_path('config.ini')):
+        if not exists('config.ini'):
           askapis = AskApis()
         else:
-          config.read(resource_path('config.ini'))
+          config.read('config.ini')
           self.bitlyAPI = (config['APIS']['bitly'])
           messagebox.showinfo(message='Apis loaded successfully', title="Info")
           app.start()
-    except:
+    except Exception as e:
         messagebox.showerror(message='Error please tell admin.', title="Error")
+        print(e)
     return
     # self.bitlyAPi = askstring('Bitly API KEY', "Please enter <b>BITLY API KEY</b>:\nIf you don't enter it, the bitly shortener won't work.\nhttps://dev.bitly.com/docs/getting-started/authentication/",show='*')
 
@@ -61,7 +62,7 @@ class App():
     # sizegrip.grid(row=100, column=100, padx=(0, 5), pady=(0, 5))# Create a style
     style = ttk.Style(self.root)
     # Import the tcl file
-    self.root.tk.call("source", "proxttk.tcl")
+    self.root.tk.call("source", resource_path("proxttk.tcl"))
     # Set the theme with the theme_use method
     style.theme_use("proxttk")
     # TopFrame
@@ -124,8 +125,8 @@ class App():
     self.clean_button.place(x=880,y=350)
 
   def clean_apis(self):
-    if os.path.exists(resource_path('config.ini')):
-       os.remove(resource_path('config.ini'))
+    if os.path.exists('config.ini'):
+       os.remove('config.ini')
     messagebox.showinfo(message="Apis cleaned successfully, please restart the app", title="Info")
     self.root.destroy()
     
@@ -138,16 +139,19 @@ class App():
     try:
       self.tinyurlShorted.set(short_noapi.tinyurl.short(long_url))
     except Exception as e:
+      print(e)
       messagebox.showerror(message="Tinyurl error.", title="Error")
 
     try :
       bitly = pyshorteners.Shortener(api_key=self.bitlyAPI)
       self.bitlyurlShorted.set(bitly.bitly.short(long_url))
     except Exception as e:
+      print(e)
       messagebox.showerror(message="Bit.ly error, clean the api and try again please.", title="Error")
     try:
       self.dagdShorted.set(short_noapi.dagd.short(long_url))
     except Exception as e:
+      print(e)
       messagebox.showerror(message="Da.gd error.", title="Error")
 
   def start(self):
@@ -172,7 +176,7 @@ class AskApis():
         self.root.rowconfigure(index=4, weight=0)
         style = ttk.Style(self.root)
         # Import the tcl file
-        self.root.tk.call("source", "proxttk.tcl")
+        self.root.tk.call("source", resource_path("proxttk.tcl"))
         # Set the theme with the theme_use method
         style.theme_use("proxttk")
         labelBitlyToken = ttk.Label(self.root, text="BITLY TOKEN",font="gotham 10  bold")
