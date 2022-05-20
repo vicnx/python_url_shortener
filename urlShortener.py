@@ -82,9 +82,9 @@ class App():
     #Input
     self.urlInput = ttk.Entry(self.topFrame)
     self.urlInput.insert(0, "")
-    self.urlInput.grid(row=2, column=1, pady=0, padx=(80,0), columnspan=1,sticky="we")
+    self.urlInput.grid(row=2, column=1, pady=0, padx=(0,0), columnspan=1,sticky="we")
     #button
-    accentbutton = ttk.Button(self.topFrame, text="CUT", style="AccentButton", command=lambda: self.shortUrls())
+    accentbutton = ttk.Button(self.topFrame, text="CUT", style="AccentButton", command=lambda: self.shortUrls(), cursor="hand2")
     accentbutton.grid(row=2, column=2, padx=5, pady=0, sticky="nsew")
 
     #Bottom Frame
@@ -98,38 +98,57 @@ class App():
     labelTinyUrl = ttk.Label(self.bottomFrame, text="TinyUrl",font="gotham 10  bold",foreground="#333333")
     labelTinyUrl.grid(row=0, column=0, pady=10, padx=(0,0) ,columnspan=1)
     self.tinyurlShorted = StringVar()
-    self.urltinyurl = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.tinyurlShorted)
+    self.urltinyurl = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.tinyurlShorted, cursor="hand2")
     self.urltinyurl.grid(row=1, column=0, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
 
     #Bitly label & Input
     labelBitly = ttk.Label(self.bottomFrame, text="Bitly",font="gotham 10  bold",foreground="#333333")
     labelBitly.grid(row=0, column=1, pady=10, padx=(0,0) ,columnspan=1)
     self.bitlyurlShorted = StringVar()
-    self.urlbitly = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.bitlyurlShorted)
+    self.urlbitly = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.bitlyurlShorted, cursor="hand2")
     self.urlbitly.grid(row=1, column=1, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
 
     #Bitly label & Input
-    # labelBitly = ttk.Label(self.bottomFrame, text="Bitly",font="gotham 10  bold",foreground="#333333")
-    # labelBitly.grid(row=0, column=2, pady=10, padx=(0,0) ,columnspan=1)
-    # self.bitlyurlShorted = StringVar()
-    # self.urlbitly = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.bitlyurlShorted)
-    # self.urlbitly.grid(row=1, column=2, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
+    owly = ttk.Label(self.bottomFrame, text="Da.gd",font="gotham 10  bold",foreground="#333333")
+    owly.grid(row=0, column=2, pady=10, padx=(0,0) ,columnspan=1)
+    self.dagdShorted = StringVar()
+    self.urldagd = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.dagdShorted, cursor="hand2")
+    self.urldagd.grid(row=1, column=2, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
 
     #Footer
     self.github = icon_to_image("github", fill="black", scale_to_width=20)  
-    self.github_button = ttk.Button(master=self.root,text="Github", command=lambda:self.open_github(), image = self.github, compound = 'left')
+    self.github_button = ttk.Button(master=self.root,text="Github", command=lambda:self.open_github(), image = self.github, compound = 'left', cursor="hand2")
     self.github_button.grid(row=4, column=1, pady=0, padx=10, sticky="w")
+    self.clean = icon_to_image("broom", fill="black", scale_to_width=20)  
+    self.clean_button = ttk.Button(master=self.root,text="Clean Apis", command=lambda:self.clean_apis(), image = self.clean, compound = 'left', cursor="hand2")
+    self.clean_button.place(x=880,y=350)
 
+  def clean_apis(self):
+    if os.path.exists(resource_path('config.ini')):
+       os.remove(resource_path('config.ini'))
+    messagebox.showinfo(message="Apis cleaned successfully, please restart the app", title="Info")
+    self.root.destroy()
+    
   def open_github(self):
       webbrowser.open('https://www.github.com/vicnx', new=0, autoraise=True)
 
   def shortUrls(self):
-    tiny = pyshorteners.Shortener()
-    short_url_tiny = tiny.tinyurl.short(self.urlInput.get())
-    self.tinyurlShorted.set(short_url_tiny)
-    bitly = pyshorteners.Shortener(api_key=self.bitlyAPI)
-    short_url_bitly = bitly.bitly.short(self.urlInput.get())
-    self.bitlyurlShorted.set(short_url_bitly)
+    long_url = self.urlInput.get()
+    short_noapi = pyshorteners.Shortener()
+    try:
+      self.tinyurlShorted.set(short_noapi.tinyurl.short(long_url))
+    except Exception as e:
+      messagebox.showerror(message="Tinyurl error.", title="Error")
+
+    try :
+      bitly = pyshorteners.Shortener(api_key=self.bitlyAPI)
+      self.bitlyurlShorted.set(bitly.bitly.short(long_url))
+    except Exception as e:
+      messagebox.showerror(message="Bit.ly error, clean the api and try again please.", title="Error")
+    try:
+      self.dagdShorted.set(short_noapi.dagd.short(long_url))
+    except Exception as e:
+      messagebox.showerror(message="Da.gd error.", title="Error")
 
   def start(self):
     app.create_window()
