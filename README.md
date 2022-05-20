@@ -9,6 +9,16 @@
 > This application is designed with Python to practice connecting with third party APIs.
 > Its operation is quite simple, you enter a long URL and it gives you several shortened options (depending on the ones you have active) TinyURL is always active.
 
+## Images
+
+### First use
+
+<img alt="url_shortener_first_user" src="assets/img/1.png" />
+
+### Aplication
+
+<img alt="url_shortener" src="assets/img/2.png" />
+
 ## Install
 
 You need to have [Python](https://www.python.org/downloads/) installed and install the project requirements.
