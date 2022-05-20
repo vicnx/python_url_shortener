@@ -1,17 +1,53 @@
+import configparser
+from genericpath import exists
+import os
+import sys
 import tkinter as tk
 from tkinter import StringVar, ttk
+from tkinter import simpledialog
+from tkinter import messagebox
 from tokenize import String
+import webbrowser
 import pyshorteners
+from tkfontawesome import icon_to_image 
+from tkinter.messagebox import showinfo
+from tkinter.simpledialog import askstring
 
+config = configparser.RawConfigParser()
+
+def resource_path(relative_path):
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+    return os.path.join(base_path, relative_path)
 class App():
   def __init__(self):
     super().__init__()
+    self.bitlyAPI = StringVar
+    # self.check_apis()
+
+  def check_apis(self):
+    try:
+        if not exists(resource_path('config.ini')):
+          askapis = AskApis()
+        else:
+          config.read(resource_path('config.ini'))
+          self.bitlyAPI = (config['APIS']['bitly'])
+          messagebox.showinfo(message='Apis loaded successfully', title="Info")
+          app.start()
+    except:
+        messagebox.showerror(message='Error please tell admin.', title="Error")
+    return
+    # self.bitlyAPi = askstring('Bitly API KEY', "Please enter <b>BITLY API KEY</b>:\nIf you don't enter it, the bitly shortener won't work.\nhttps://dev.bitly.com/docs/getting-started/authentication/",show='*')
 
   def create_window(self):
     self.root = tk.Tk()
     self.root.title("URL Shortener v0.1")
     self.root.option_add("*tearOff", False)
-    self.root.geometry("1000x500")
+    self.root.resizable(False, False)
+    self.root.geometry("1000x400")
     self.root.columnconfigure(index=0, weight=0)
     self.root.columnconfigure(index=1, weight=1)
     self.root.columnconfigure(index=2, weight=0)
@@ -19,9 +55,10 @@ class App():
     self.root.rowconfigure(index=0, weight=1)
     self.root.rowconfigure(index=1, weight=0)
     self.root.rowconfigure(index=2, weight=0)
-    self.root.rowconfigure(index=3, weight=4)
-    sizegrip = ttk.Sizegrip(self.root)
-    sizegrip.grid(row=100, column=100, padx=(0, 5), pady=(0, 5))# Create a style
+    self.root.rowconfigure(index=3, weight=3)
+    self.root.rowconfigure(index=4, weight=1)
+    # sizegrip = ttk.Sizegrip(self.root)
+    # sizegrip.grid(row=100, column=100, padx=(0, 5), pady=(0, 5))# Create a style
     style = ttk.Style(self.root)
     # Import the tcl file
     self.root.tk.call("source", "proxttk.tcl")
@@ -52,34 +89,99 @@ class App():
 
     #Bottom Frame
     self.bottomFrame = ttk.Frame(self.root, padding=(0,0, 0, 0))
-    self.bottomFrame.grid(row=3, column=1, padx=(20,5),pady=(10,10), sticky="nsew", rowspan=1)
+    self.bottomFrame.grid(row=3, column=1, padx=(5,5),pady=(10,10), sticky="nsew", rowspan=1)
     self.bottomFrame.columnconfigure(index=0, weight=1)
     self.bottomFrame.columnconfigure(index=1, weight=1)
     self.bottomFrame.columnconfigure(index=2, weight=1)
-    self.bottomFrame.columnconfigure(index=3, weight=1)
-    self.bottomFrame.columnconfigure(index=4, weight=1)
-    self.bottomFrame.columnconfigure(index=5, weight=1)
 
-    #label
-    label2 = ttk.Label(self.bottomFrame, text="TinyUrl",font="gotham 10  bold",foreground="#333333")
-    label2.grid(row=0, column=0, pady=10, padx=(0,0) ,columnspan=1)
+    #TinyURL label & Input
+    labelTinyUrl = ttk.Label(self.bottomFrame, text="TinyUrl",font="gotham 10  bold",foreground="#333333")
+    labelTinyUrl.grid(row=0, column=0, pady=10, padx=(0,0) ,columnspan=1)
     self.tinyurlShorted = StringVar()
     self.urltinyurl = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.tinyurlShorted)
-    self.urltinyurl.grid(row=1, column=0, pady=0, padx=(0,0), columnspan=1,sticky="we")
+    self.urltinyurl.grid(row=1, column=0, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
 
-  def print_url(self,location,url):
-      location.insert(url)
+    #Bitly label & Input
+    labelBitly = ttk.Label(self.bottomFrame, text="Bitly",font="gotham 10  bold",foreground="#333333")
+    labelBitly.grid(row=0, column=1, pady=10, padx=(0,0) ,columnspan=1)
+    self.bitlyurlShorted = StringVar()
+    self.urlbitly = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.bitlyurlShorted)
+    self.urlbitly.grid(row=1, column=1, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
+
+    #Bitly label & Input
+    # labelBitly = ttk.Label(self.bottomFrame, text="Bitly",font="gotham 10  bold",foreground="#333333")
+    # labelBitly.grid(row=0, column=2, pady=10, padx=(0,0) ,columnspan=1)
+    # self.bitlyurlShorted = StringVar()
+    # self.urlbitly = ttk.Entry(self.bottomFrame, state="readonly",textvariable=self.bitlyurlShorted)
+    # self.urlbitly.grid(row=1, column=2, pady=0, padx=(10,10), columnspan=1,sticky="nsew")
+
+    #Footer
+    self.github = icon_to_image("github", fill="black", scale_to_width=20)  
+    self.github_button = ttk.Button(master=self.root,text="Github", command=lambda:self.open_github(), image = self.github, compound = 'left')
+    self.github_button.grid(row=4, column=1, pady=0, padx=10, sticky="w")
+
+  def open_github(self):
+      webbrowser.open('https://www.github.com/vicnx', new=0, autoraise=True)
 
   def shortUrls(self):
-    type_tiny = pyshorteners.Shortener()
-    short_url = type_tiny.tinyurl.short(self.urlInput.get())
-    self.tinyurlShorted.set(short_url)
+    tiny = pyshorteners.Shortener()
+    short_url_tiny = tiny.tinyurl.short(self.urlInput.get())
+    self.tinyurlShorted.set(short_url_tiny)
+    bitly = pyshorteners.Shortener(api_key=self.bitlyAPI)
+    short_url_bitly = bitly.bitly.short(self.urlInput.get())
+    self.bitlyurlShorted.set(short_url_bitly)
 
   def start(self):
-    self.create_window()
-    self.root.mainloop()
+    app.create_window()
+    app.root.mainloop()
+
+
+class AskApis():
+    def __init__(self):
+        self.root = tk.Tk()
+        self.root.title("URL Shortener v0.1")
+        self.root.geometry("450x200")
+        self.root.option_add("*tearOff", False)
+        self.root.resizable(False, False)
+        self.root.columnconfigure(index=0, weight=0)
+        self.root.columnconfigure(index=1, weight=1)
+        self.root.columnconfigure(index=2, weight=0)
+        self.root.rowconfigure(index=0, weight=0)
+        self.root.rowconfigure(index=1, weight=0)
+        self.root.rowconfigure(index=2, weight=0)
+        self.root.rowconfigure(index=3, weight=0)
+        self.root.rowconfigure(index=4, weight=0)
+        style = ttk.Style(self.root)
+        # Import the tcl file
+        self.root.tk.call("source", "proxttk.tcl")
+        # Set the theme with the theme_use method
+        style.theme_use("proxttk")
+        labelBitlyToken = ttk.Label(self.root, text="BITLY TOKEN",font="gotham 10  bold")
+        labelBitlyToken.grid(row=0, column=1, pady=5, padx=(0,0) ,columnspan=2)
+        infoBitly = ttk.Label(self.root, text="If you don't enter it, the bitly shortener won't work.",font="gotham 9  bold")
+        infoBitly.grid(row=1, column=1, pady=5, padx=(0,0) ,columnspan=2)
+        tokenurlBitly = ttk.Label(self.root, text="https://dev.bitly.com/docs/getting-started/authentication/",font="gotham 9  bold",foreground="#0000EE", cursor="hand2")
+        tokenurlBitly.grid(row=2, column=1, pady=5, padx=(0,0) ,columnspan=2)
+        self.bitlyToken = StringVar()
+        self.bitlyToken = ttk.Entry(self.root)
+        self.bitlyToken.grid(row=3, column=1, pady=5, padx=(20,20), columnspan=1,sticky="nsew")
+        self.saveTokens = icon_to_image("github", fill="black", scale_to_width=20)  
+        self.saveTokens = ttk.Button(master=self.root,text="Save Apis", command=lambda:self.get_apis(), compound = 'left',cursor="hand2", style="AccentButton")
+        self.saveTokens.grid(row=4, column=1, pady=20, padx=20, sticky="e")
+        self.root.mainloop()
+        
+    def get_apis(self):
+      app.bitlyAPI = self.bitlyToken.get()
+      config.add_section('APIS')
+      config['APIS']['bitly'] = self.bitlyToken.get()
+      with open("config.ini", 'w') as f:
+          config.write(f)
+      #Close this window.
+      self.root.destroy()
+      #start main app.
+      app.start()
 
 
 if __name__ == "__main__":
     app = App()
-    app.start()
+    app.check_apis()
